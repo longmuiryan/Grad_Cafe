@@ -21,7 +21,8 @@ os.chdir("/Users/ryanlongmuir/Desktop/Python/grad_cafe/data")
 # ============================================================================
 
 # ----------------------------------------------------------------------------
-# try_fmt
+# tryFormats
+#   takes a date string, returns a date object 
 # ----------------------------------------------------------------------------
 
 def tryFormats(date_str):
@@ -34,7 +35,7 @@ def tryFormats(date_str):
 
 # ----------------------------------------------------------------------------
 # propNA
-#   return proporation of NA's in series 
+#   takes a pandas series, returns the proporation of NA's in that series 
 # ----------------------------------------------------------------------------
 
 def propNA(ser): 
@@ -42,7 +43,7 @@ def propNA(ser):
 
 # -----------------------------------------------------------------------------
 # betweenStrings
-#   return sub-string between to strings 
+#   return sub-string between to strings `start` and `end` 
 # -----------------------------------------------------------------------------
 
 def betweenStrings(start, end, string): 
@@ -55,7 +56,8 @@ def betweenStrings(start, end, string):
 # scrapeGradCafe
 #   return a dataframe containing search results from the grad cafe website
 #   https://www.thegradcafe.com/survey/index.php . takes a start date and a search 
-#   query. enter search queries as you would on the grad cafe website e.g., "econ* harvard"
+#   query. enter search queries as you would on the grad cafe website e.g., 
+#   "econ* harvard"
 # ----------------------------------------------------------------------------
 
 def scrapeGradCafe(search, start_date = pd.datetime.now() - timedelta(days=365)):
@@ -92,25 +94,57 @@ def scrapeGradCafe(search, start_date = pd.datetime.now() - timedelta(days=365))
     
     return df
 
+
+# ===========================================================================
+# Call functions 
+# ===========================================================================
+
 # ----------------------------------------------------------------------------
-# pull in and clean data  
+# scrape data and write raw data to a csv 
 # ----------------------------------------------------------------------------
 
 # today's date 
 date = pd.datetime.now().strftime("%m%d%Y")
 
-# apply scrapeGradCafe to multiple schools and rbind the datasets together 
-# i'm affraid to scraping the website too often so i have commented this code out
-schools = [ 'harvard', 'mit', 'princeton', 'stanford', 'berkeley', 'yale', 'chicago']
+# construct query for each school 
+schools = [
+  'Harvard University',
+  'Massachusetts Institute Of Technology (MIT)',  
+  'Princeton University', 
+  'Stanford University', 
+  'University Of California Berkeley', 
+  'UC Berkeley', 
+  'Yale University',
+  'Northwestern University',
+  'University Of Chicago', 
+  'Columbia University',
+  'University Of Pennsylvania', 
+  'New York University (NYU)',
+  'University Of Californa Los Angeles (UCLA)',
+  'UC San Diego (UCSD)',
+  'University Of Michigan Ann Arbor',
+  'University Of Wisconsin Madison', 
+  'Cornell University',
+  'Duke University',
+  'University Of Minnesota, Twin Cities',
+  'Brown University',
+  'Carnegie Mellon University'
+ ]
+  
 search = ["econ* " + x for x in schools]
-df = pd.concat(map(partial(scrapeGradCafe, start_date = "2015-01-01"), search))
-df.to_csv("data/raw_grad_cafe_{0}.csv".format(date), index = False)
 
-#  pull in raw data 
-df = pd.read_csv("data/raw_grad_cafe_{0}.csv".format(date))
+# scrape data 
+raw_df = pd.concat(map(partial(scrapeGradCafe, start_date = "2016-01-01"), search))
+
+# write raw data to a csv 
+raw_df.to_csv("raw_grad_cafe_{0}.csv".format(date), index = False)
+
+# ----------------------------------------------------------------------------
+# clean raw data 
+# ----------------------------------------------------------------------------
 
 # manipulate data 
-df = df\
+df = raw_df\
     .assign(
         acc = lambda x : x['dec'].str[0:9],
         date_str = lambda x: x['dec'].apply(lambda x: x[x.find("on ")+3: x.find("on ")+14]),
@@ -125,7 +159,7 @@ df = df\
     .query('prg.str.contains("Economics, PhD")', engine='python')\
     .drop(columns = ['gre', 'dec', 'date_str', ])
 
-# save clean data 
+# write clean data to a csv 
 df.to_csv("clean_grad_cafe_{0}.csv".format(date), index = False) 
     
 # ----------------------------------------------------------------------------
@@ -138,5 +172,6 @@ df.agg({
   'season': [propNA]
 })
     
+
 
 
