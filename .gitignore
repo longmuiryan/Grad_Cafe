@@ -1,0 +1,28 @@
+
+
+# files 
+*.DS_Store
+*-Ex.R
+*.httr-oauth
+*.knit.md
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+*.Rproj
+*.Rhistory
+*.Rapp.history
+*.RData
+*.Renviron
+*.Ruserdata
+*.tar.gz
+*.utf8.md
+*.Rproj.user
+*.html
+
+
+# folders 
+figures
+depreciated
+.ipynb_checkpoints
+.Rproj.user
